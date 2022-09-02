@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>sio log</title>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+ <script src="/js/jquery.bottom-1.0.js"></script>
+ <script src="/js/common.js"></script>
+ <link rel="stylesheet" href="/css/index.css">
+ <%if(tag_opt == 0){%>
+ <style>
+  span.data_tag{
+   display: none;
+  }
+ </style>
+ <%}%>
+ <script>
+  var tag = '';
+  var tag_txt = '全て';
+  var socketio = io({query:{uid:'<%- uid %>'}});
+  socketio.on('update',function(data){
+   if(tag == '' || data.tid == tag){
+    let data_tag = '';
+    if(data.tag) data_tag = '(' + data.tag_name + ')';
+    let li_data = $('<li>')
+	let color = match_msg(data.msg);
+	if(color) li_data.css({'background':color});
+	li_data.html('['+data.rdate+']<span class="data_tag">'+data_tag+'</span> '+data.msg);
+    $('#messages').prepend(li_data);
+    let li_count = $('#messages li').length;
+    if(li_count >= 1200){
+     $('#messages li').slice(1000,).remove();
+    }
+   }
+  });
+ </script>
+</head>
+
+<body>
+<div id="bg"></div>
+ <div id="f_menu">
+  <div id="filter_toggle">
+   <span></span><span></span><span></span>
+  </div>
+  <span id="tag_txt">全て</span>
+  <% if(view != true){ %>
+  <div id="setting">
+   <img src="/img/setting_icon.png" id="setting_icon">
+  </div>
+  <div id="setting_menu">
+   <ul>
+    <li onClick='location.href="/setup";'>設定</li>
+    <li onClick='location.href="/logout";'>ログアウト</li>
+   </ul>
+  </div>
+  <% } %>
+ </div>
+ <div id="tag_filter">
+  <ul id="tag_list">
+   <li data-tid="">全て</li>
+   <% for (let items of tags){
+       if(!items) continue;
+   %>
+   <li data-tid="<%- items.tid %>"><%- items.tag_name %></li>
+   <% } %>
+  </ul>
+ </div>
+
+ <ul id="messages"></ul>
+ <p id="get_log_lnk">続きを読み込む</p>
+</body>
+<script>
+$(function(){
+  var min_id = 0;
+  var end_flag = false;
+  var load_flag = false;
+  $(window).bottom({proximity: 0.3});
+  $(window).on('bottom', function(){
+    if(!end_flag){
+        if(!load_flag){
+          load_flag = true;
+          $('#get_log_lnk').css({'display':'none'});
+          $('#messages').append('<li class="loading">loading...</li>');
+          setTimeout(function() {
+            let url = '/get_log/';
+            if(tag){
+             url = url + tag + '/';
+            }
+            $.get(url + min_id, {}, {}, 'json')
+             .always(function(){
+              $('li.loading').remove();
+              load_flag = false;
+             })
+             .fail(function(xhr, error){
+              console.log('失敗しました');
+              console.log(error);
+             })
+             .done(function(data){
+              if(!data.length){
+               end_flag = true;
+               return false;
+              }
+              min_id = data[data.length-1].lid;
+              $('#messages').append(msg_conv(data));
+              $('#get_log_lnk').css({'display':'block'});
+              chk_log_h();
+             });
+          }, 1000);
+        }
+    }
+  });
+
+  $('#get_log_lnk').on('click', function(){
+   $(window).trigger('bottom');
+  });
+
+  $('#filter_toggle').on('click', function(){
+   $(this).toggleClass('active');
+   if($(this).hasClass('active')){
+    $('#bg').css({'display':'block'});
+    $('div#tag_filter').addClass('active');
+    $('li[data-tid]').removeClass('active');
+    $('li[data-tid="'+tag+'"]').addClass('active');
+   }else{
+    $('#bg').css({'display':'none'});
+    $('div#tag_filter').removeClass('active');
+   }
+  });
+
+  $('ul#tag_list li').on('click', function(){
+   $('li[data-tid]').removeClass('active');
+   $(this).addClass('active');
+   tag = $(this).data('tid');
+   tag_txt = $(this).text();
+   let url = '/get_log/';
+   if(tag){
+    url = url + tag + '/';
+   }
+   $.get(url + 'all', {}, {}, 'json')
+    .always(function(){
+     $('#messages li').remove();
+     $('span#tag_txt').text(tag_txt);
+     $('#get_log_lnk').css({'display':'block'});
+     end_flag = false;
+    })
+    .fail(function(xhr, error){
+     console.log('失敗しました');
+     console.log(error);
+     fn_jump_login();
+    })
+    .done(function(data){
+     if(!data.length){
+      return false;
+     }
+     min_id = data[data.length-1].lid;
+     $('#messages').append(msg_conv(data));
+     chk_log_h();
+    });
+  }); 
+
+  $('#setting_icon').on('click', function(){
+   $(this).toggleClass('active');
+   if($(this).hasClass('active')){
+    $('#bg').css({'display':'block'});
+    $('div#setting_menu').addClass('active');
+   }else{
+    $('#bg').css({'display':'none'});
+    $('div#setting_menu').removeClass('active');
+   }
+  });
+
+  $('#bg').on('click', function(){
+   $(this).css({'display':'none'});
+   if($('#filter_toggle').hasClass('active')) $('#filter_toggle').trigger('click');
+   if($('#setting_icon').hasClass('active')) $('#setting_icon').trigger('click');
+  });
+
+  $('ul#tag_list li:first').trigger('click');
+});
+
+function chk_log_h(){
+ var win_h = $(window).height();
+ var msg_h = $('ul#messages').outerHeight(true);
+ if(msg_h < win_h) $(window).trigger('bottom');
+}
+
+function msg_conv(data){
+ let line = [];
+ $.each(data, function(idx, val){
+  let val_tag = '';
+  if(val.tag && val.tag_name) val_tag = '(' + val.tag_name + ')';
+  let li_data = $('<li>')
+  let color = match_msg(val.msg);
+  if(color) li_data.css({'background':color});
+  li_data.html('['+val.rdate+']<span class="data_tag">'+val_tag+'</span> '+val.msg);
+  line.push(li_data);
+ });
+ return line;
+}
+
+function match_msg(msg){
+ const match_arr = <%- JSON.stringify(match_data) %>;
+ let color = false;
+ $.each(match_arr, function(key,val){
+  let myregexp = new RegExp(val.key_str);
+  if(myregexp.test(msg)){
+   color = val.color;
+   return false;
+  }
+ });
+ return color;
+}
+</script>
+</html>

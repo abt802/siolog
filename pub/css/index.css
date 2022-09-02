@@ -1,0 +1,142 @@
+ul#messages{
+ list-style-type: none;
+ padding: 0;
+ margin-top: 60px;
+}
+ul#messages li{
+ border-top: solid 1px #ddd;
+ padding: 2px 0;
+}
+ul#messages li:nth-child(odd){
+ background: #eee;
+}
+ul#messages li.loading{
+ color: red;
+}
+p#get_log_lnk{
+ margin: 0;
+ text-align: center;
+ text-decoration: underline;
+ color: blue;
+ cursor: pointer;
+}
+
+div#f_menu{
+ position: fixed;
+ width: 100%;
+ height: 50px;
+ top: 0;
+ left: 0;
+ background: #fff;
+}
+div#filter_toggle{
+ position: absolute;
+ top: 5px;
+ left: 20px;
+ cursor: pointer;
+ padding: 12px 10px;
+}
+div#filter_toggle:hover{
+ background: rgba(0,0,0,0.05);
+ border-radius: 50%;
+}
+div#filter_toggle span{
+ display: block;
+ width: 20px;
+ border-bottom: solid 3px #444;
+ margin-bottom: 2px;
+}
+span#tag_txt{
+ position: absolute;
+ top: 10px;
+ left: 60px;
+}
+
+div#tag_filter{
+ position: fixed;
+ background: #fff;
+ font-size: small;
+ width: 21em;
+ top: 50px;
+ left: -21em;
+ transition: .35s ease-in-out;
+}
+div#tag_filter.active{
+ left: 0;
+}
+ul#tag_list{
+ list-style: none;
+ border: solid 1px;
+ margin: 0;
+ padding: 0;
+ line-height: 2;
+}
+ul#tag_list li{
+ margin: 5px;
+ padding: 0 5px;
+ border: solid 1px;
+ background: #aef;
+ cursor: pointer;
+ text-overflow: ellipsis;
+ white-space: nowrap;
+ overflow: hidden;
+}
+ul#tag_list li.active{
+ background: pink;
+}
+
+div#setting{
+ position: absolute;
+ top: 5px;
+ right: 20px;
+}
+img#setting_icon{
+ width: 20px;
+ padding: 10px;
+ cursor: pointer;
+}
+img#setting_icon:hover{
+ background: rgba(0,0,0,0.05);
+ border-radius: 50%;
+}
+
+div#setting_menu{
+ position: absolute;
+ background: #fff;
+ font-size: small;
+ width: 130px;
+ top: 50px;
+ right: -130px;
+ transition: .35s ease-in-out;
+}
+div#setting_menu.active{
+ right: 0;
+}
+div#setting_menu ul{
+ list-style: none;
+ border: solid 1px;
+ margin: 0;
+ padding: 0;
+ line-height: 2;
+}
+div#setting_menu li{
+ margin: 5px;
+ padding: 0 5px;
+ border: solid 1px;
+ background: #eee;
+ cursor: pointer;
+}
+div#setting_menu li:not(:last-child){
+ margin-bottom: 15px;
+}
+div#setting_menu li:hover{
+ background: #aef;
+}
+div#bg{
+ display: none;
+ width: 100%;
+ height: 100%;
+ position: fixed;
+ top: 0;
+ z-index: 0;
+}

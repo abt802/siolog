@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>setup</title>
+ <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+ <script src="/js/jquery-ui.min.js"></script>
+ <script src="/js/common.js"></script>
+ <link rel="stylesheet" href="/css/setup.css">
+</head>
+
+<body>
+<div id="head_box">
+ <div id="return_index">
+  <a href="/">←戻る</a>
+ </div>
+<ul id="menu_box">
+<li data-tab="#General">全般</li>
+<li data-tab="#Account">アカウント</li>
+<li data-tab="#Tag">タグ</li>
+<li data-tab="#Match">文字列フィルタ</li>
+<li data-tab="#Notify">通知</li>
+<li data-tab="#Log">ログ管理</li>
+</ul>
+</div>
+ <div id="General" class="tab_view">
+  <fieldset id="view_url">
+   <legend>Viewショートカット/Post URL</legend>
+   <span class="token_body">(View) <%- view_url %></span>
+   <span class="token_body">(Post) <%- post_url %></span>
+   <button type="button" class="token_change_btn" value="vtoken">変更</button>
+  </fieldset>
+  <fieldset id="login_url">
+   <legend>Loginショートカット</legend>
+   <span class="token_body"><%- login_url %></span>
+   <button type="button" class="token_change_btn" value="rtoken">変更</button>
+  </fieldset>
+ </div>
+
+ <div id="Account" class="tab_view">
+  <fieldset id="id_change">
+   <legend>ID変更</legend>
+   新ID：<input type="text" id="new_id">
+   <button type="button" id="id_change_btn">ID変更</button>
+  </fieldset>
+  <fieldset id="passwd_change">
+   <legend>パスワード変更</legend>
+   新パスワード：<input type="text" id="new_passwd">
+   <button type="button" id="passwd_change_btn">パスワード変更</button>
+  </fieldset>
+ </div>
+
+ <div id="Tag" class="tab_view">
+  <button type="button" class="tab_menu_btn">オプションメニュー</button>
+  <div class="tab_menu_box">
+  <fieldset>
+   <legend>タグ表示オプション</legend>
+   <input type="checkbox" id="tag_opt"<%if(tag_opt == 1){%> checked<%}%>>ログ表示にタグを含める
+   <button type="button" class="opt_change_btn" value="tag_opt">設定</button>
+  </fieldset>
+  <fieldset>
+   <legend>インポート/エクスポート</legend>
+   <input id="tag_file" class="file_import" type="file" data-type="tag">
+   <button type="button" class="import_btn" value="tag">インポート</button>
+   <button type="button" class="export_btn" value="tag" onclick="location.href='/setup/str_set/tag';">エクスポート</button>
+  </fieldset>
+  </div>
+  <div id="tag_table_field">
+   <div id="tag_table" class="list_flex">
+    <ul class="unsortable"><li class="drag_tab"></li><li class="tag">タグ</li><li class="tag_name">タグ名</li><li class="tag_action">アクション</li></ul>
+     <% for (let items of tags){
+         if(!items) continue;
+     %>
+    <ul data-tid="<%- items.tid %>"><li class="drag_tab"></li><li class="tag"><input type="text" class="tag" value="<%- items.tag %>"></li><li class="tag_name"><input type="text" class="tag_name" value="<%- items.tag_name %>"></li><li class="tag_action"><button type="button" class="tag_delete_btn" value="<%- items.tid %>">削除</button></li></ul>
+     <% } %>
+    <ul><li class="drag_tab"></li><li class="tag"><input type="text" class="tag" value=""></li><li class="tag_name"><input type="text" class="tag_name" value=""></li><li class="tag_action"><button type="button" class="tag_save_btn">追加</button></li></ul>
+   </div>
+   <button type="button" class="tag_save_btn">保存</button>
+  </div>
+ </div>
+
+ <div id="Match" class="tab_view">
+  <button type="button" class="tab_menu_btn">オプションメニュー</button>
+  <div class="tab_menu_box">
+  <fieldset>
+   <legend>インポート/エクスポート</legend>
+   <input id="match_file" class="file_import" type="file" data-type="match">
+   <button type="button" class="import_btn" value="match">インポート</button>
+   <button type="button" class="export_btn" value="match" onclick="location.href='/setup/str_set/match';">エクスポート</button>
+  </fieldset>
+  </div>
+  <div id="match_table_field">
+   <div id="match_table" class="list_flex">
+    <ul class="unsortable"><li class="drag_tab"></li><li class="match_key">文字列</li><li class="match_color">色</li><li class="match_push">通知</li><li class="match_action">アクション</li></ul>
+     <% for (let items of match_data){
+         if(!items) continue;
+		 let checked = items.push ? 'checked' : '';
+     %>
+    <ul data-mid="<%- items.mid %>"><li class="drag_tab"></li><li class="match_key"><input type="text" class="match_key" value="<%- items.key_str %>"></li><li class="match_color"><input type="text" class="match_color" value="<%- items.color %>"></li><li class="match_push"><input type="checkbox" class="match_push" <%- checked %>></li><li class="match_action"><button type="button" class="match_delete_btn" value="<%- items.mid %>">削除</button></li></ul>
+     <% } %>
+    <ul><li class="drag_tab"></li><li class="match_key"><input type="text" class="match_key" value=""></li><li class="match_color"><input type="text" class="match_color" value=""></li><li class="match_push"><input type="checkbox" class="match_push"></li><li class="match_action"><button type="button" class="match_save_btn">追加</button></li></ul>
+   </div>
+   <button type="button" class="match_save_btn">保存</button>
+  </div>
+ </div>
+
+<% tw = {active:0, api_key:'', api_secret:'', access_token:'', access_secret:''};
+   li = {active:0, notify_token:''};
+   for (let item of notify_data){
+    let token = JSON.parse(item.tokens);
+    if(item.type == 'twitter'){
+     tw.active = item.active;
+     tw.api_key = token.api_key;
+     tw.api_secret = token.api_secret;
+     tw.access_token = token.access_token;
+     tw.access_secret = token.access_secret;
+    }else if(item.type == 'line'){
+     li.active = item.active;
+     li.notify_token = token.notify_token;
+    }
+  }
+%>
+ <div id="Notify" class="tab_view">
+  <fieldset id="webpush_notify">
+   <legend>Webpush</legend>
+   <button type="button" id="webpush_btn" style="display:none";>開始</button>
+   <button type="button" id="webpush_del_btn" style="display:none";>停止</button>
+  </fieldset>
+  <fieldset id="twitter_notify">
+   <legend>Twitter</legend>
+   <input type="checkbox" id="tw_active"<%if(tw.active == 1){%> checked<%}%>>有効<br>
+   API Key：<input type="text" id="tw_api_key" value="<%- tw.api_key %>"><br>
+   API Secret Key：<input type="text" id="tw_api_secret" value="<%- tw.api_secret %>"><br>
+   Access Token：<input type="text" id="tw_access_token" value="<%- tw.access_token %>"><br>
+   Access Token Secret：<input type="text" id="tw_access_secret" value="<%- tw.access_secret %>"><br>
+   <button type="button" id="tw_save_btn">設定</button>
+  </fieldset>
+  <fieldset id="line_notify">
+   <legend>LINE</legend>
+   <input type="checkbox" id="li_active"<%if(li.active == 1){%> checked<%}%>>有効<br>
+   Notify Token：<input type="text" id="li_notify_token" value="<%- li.notify_token %>"><br>
+   <button type="button" id="li_save_btn">設定</button>
+  </fieldset>
+ </div>
+
+ <div id="Log" class="tab_view">
+  <fieldset id="log_export">
+   <legend>ログダウンロード</legend>
+   <button type="button" id="log_export_btn" onClick="location.href='/setup/log';">ログダウンロード</button>
+  </fieldset>
+  <fieldset id="log_delete">
+   <legend>ログ消去</legend>
+   <button type="button" id="log_delete_btn">ログ消去</button>
+  </fieldset>
+ </div>
+</body>
+
+<script>
+$('#tag_table, #match_table').sortable({
+ opacity: 0.6,
+ items: '> ul:not(.unsortable)'
+});
+
+$(function(){
+  let active_tab = location.hash || '#General';
+  SetDisp(active_tab);
+  checkWebPush();
+
+  $('#menu_box li').on('click', function(){
+   active_tab = $(this).data('tab');
+   SetDisp(active_tab);
+   location.replace(active_tab);
+   location.reload();
+  });
+
+  $('.tab_menu_btn').on('click', function(){
+   $('.tab_menu_box').toggle();
+  });
+
+/* Twitter,Line Notify */
+  $('#tw_save_btn').on('click', function(){
+   let active = $('#tw_active').prop('checked');
+   let tokens = {
+    api_key: $('#tw_api_key').val(),
+    api_secret: $('#tw_api_secret').val(),
+    access_token: $('#tw_access_token').val(),
+    access_secret: $('#tw_access_secret').val(),
+   };
+   Object.values(tokens).map(val => {if(!val.length) active = false;});
+   let post_data = {
+    type: 'twitter',
+    active: active,
+    tokens: JSON.stringify(tokens),
+   };
+   $.post('/setup/setnotify', {data: JSON.stringify(post_data)}, {}, 'json')
+   .done(function(data){
+    let msg = '設定しました';
+    if(data.status == false) msg = '設定出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('#li_save_btn').on('click', function(){
+   let active = $('#li_active').prop('checked');
+   let tokens = {
+    notify_token: $('#li_notify_token').val(),
+   };
+   Object.values(tokens).map(val => {if(!val.length) active = false;});
+   let post_data = {
+    type: 'line',
+    active: active,
+    tokens: JSON.stringify(tokens),
+   };
+   $.post('/setup/setnotify', {data: JSON.stringify(post_data)}, {}, 'json')
+   .done(function(data){
+    let msg = '設定しました';
+    if(data.status == false) msg = '設定出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+/* Twitter,Line Notify */
+
+/* WebPush */
+  const APP_KEY = '<%- app_key %>';
+  $('#webpush_btn').on('click', function(){
+   if(Notification.permission == 'denied'){
+    alert('ブラウザの設定が通知拒否になっています');
+    return false;
+   }
+   navigator.serviceWorker.register("/sw.js").then( registration => {
+    registration.pushManager.subscribe({
+     userVisibleOnly: true,
+     applicationServerKey: decodeBase64URL(APP_KEY) 
+    }).then( subscription => {
+     let post_data = {
+      type: 'web',
+      active: 1,
+      tokens: JSON.stringify(subscription),
+     };
+     $.post('/setup/setnotify', {data: JSON.stringify(post_data)}, {}, 'json')
+     .done(function(data){
+      if(data.status == true){
+       alert('通知を開始します');
+       $('#webpush_btn').hide();
+       $('#webpush_del_btn').show();
+      }else{
+       alert('このブラウザでは通知機能が使えません');
+       return false;
+      }
+     })
+     .fail(function(xhr, error){
+      console.log(xhr,error);
+      fn_jump_login();
+     });
+    }).catch(err => {
+     console.log('Sub Err:', err);
+     alert('このブラウザでは通知機能が使えません');
+     return false;
+    });
+   }).catch(err => {
+    console.log('WebPush Err:', err);
+    alert('このブラウザでは通知機能が使えません');
+    return false;
+   });
+  });
+
+  $('#webpush_del_btn').on('click', function(){
+   navigator.serviceWorker.register("/sw.js").then(reg => {
+    reg.pushManager.getSubscription().then(sub => {
+     if(sub) sub.unsubscribe();
+     alert('通知を停止しました');
+    }).catch(err => { console.log('Sub DEL Err:',err);});
+   }).catch(err => {
+    console.log('DEL Err:',err);
+   }).finally(() => {
+    $('#webpush_btn').show();
+    $('#webpush_del_btn').hide();
+   });
+  });
+
+function decodeBase64URL(str) {
+ let dec = atob(str.replace(/\-/g, '+').replace(/_/g, '/'));
+ let buffer = new Uint8Array(dec.length);
+ for(let i = 0 ; i < dec.length ; i++)
+  buffer[i] = dec.charCodeAt(i);
+ return buffer;
+}
+
+function checkWebPush() {
+ let status = false;
+ if(!'serviceWorker' in navigator) return false;
+ navigator.serviceWorker.register("/sw.js").then(reg => {
+  reg.pushManager.getSubscription().then(sub => {
+   if(sub){
+    status = true;
+    $('#webpush_btn').hide();
+    $('#webpush_del_btn').show();
+   }else{
+    status = false;
+    $('#webpush_btn').show();
+    $('#webpush_del_btn').hide();
+   }
+  })
+ });
+}
+/* WebPush */
+
+  $('.token_change_btn').on('click', function(){
+   let action = $(this).val();
+   $.post('/setup/token', {'action': action}, {}, 'json')
+   .done(function(data){
+    let msg = '変更しました';
+    if(data.status == false) msg = '変更出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('.opt_change_btn').on('click', function(){
+   let action = $(this).val();
+   let checked = $('#' + action).prop('checked');
+   let send_data = {'action': action, 'data': +checked};
+   $.ajax({url:'/setup/opt', type:'PUT', data:send_data, dataType:'json'})
+   .done(function(data){
+    let msg = '設定しました';
+    if(data.status == false) msg = '設定出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('.tag_save_btn').on('click',function(){
+   let error = false;
+   let data_arr = [];
+   $('#tag_table ul:not(.unsortable)').each(function(){
+    let tid = $(this).data('tid') || '';
+    let tag = $('input.tag',this).val();
+    let tag_name = $('input.tag_name',this).val();
+    if(!tid && !tag && !tag_name) return true;
+    if((tid && (!tag || !tag_name)) || (!tid && (!tag || !tag_name))){
+     error = true;
+     return false;
+    }
+    data_arr.push({'tid':tid, 'tag':tag, 'tag_name':tag_name});
+   });
+   if(error){
+    alert('タグ または タグ名が入力されていません');
+    return false;
+   }else{
+    $.post('/setup/tag', {'data':JSON.stringify(data_arr)},{},'json')
+    .done(function(res){
+     let msg = '保存しました';
+     alert(msg);
+     location.reload();
+    })
+    .fail(function(xhr, error){
+     fn_jump_login();
+    });
+   }
+  });
+
+  $('.tag_delete_btn').on('click', function(){
+   if(!window.confirm('このタグを削除します、よろしいですか？')) return false;
+   let tid = $(this).val();
+   $.ajax({url:'/setup/tag/'+tid, type:'DELETE', dataType:'json'})
+   .done(function(data){
+    let msg = '削除しました';
+    if(data.status == false) msg = '削除出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('.match_save_btn').on('click',function(){
+   let error = false;
+   let data_arr = [];
+   $('#match_table ul:not(.unsortable)').each(function(){
+    let mid = $(this).data('mid') || '';
+    let key_str = $('input.match_key',this).val();
+    let color = $('input.match_color',this).val();
+    let push = $('input.match_push',this).prop('checked');
+    if(!mid && !key_str && !color) return true;
+    if((mid && (!key_str || !color)) || (!mid && (!key_str || !color))){
+     error = true;
+     return false;
+    }
+    data_arr.push({'mid':mid, 'key_str':key_str, 'color':color, 'push':push});
+   });
+   if(error){
+    alert('文字列 または 色が入力されていません');
+    return false;
+   }else{
+    $.post('/setup/match', {'data':JSON.stringify(data_arr)},{},'json')
+    .done(function(res){
+     let msg = '保存しました';
+     alert(msg);
+     location.reload();
+    })
+    .fail(function(xhr, error){
+     fn_jump_login();
+    });
+   }
+  });
+
+  $('.match_delete_btn').on('click', function(){
+   if(!window.confirm('この文字列フィルタを削除します、よろしいですか？')) return false;
+   let mid = $(this).val();
+   $.ajax({url:'/setup/match/'+mid, type:'DELETE', dataType:'json'})
+   .done(function(data){
+    let msg = '削除しました';
+    if(data.status == false) msg = '削除出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('.import_btn').on('click', function(){
+   const type = $(this).val();
+   $('#'+type+'_file').click();
+  });
+
+  $('.file_import').on('change', function(){
+   const type = $(this).data('type');
+   const file = $(this).prop('files')[0];
+   if(!file) return false;
+   if(file.type !== 'application/json'){
+    alert('ファイル異常');
+	return false;
+   }else{
+    const reader = new FileReader();
+    reader.readAsText(file);
+	reader.onload = async function(){
+	 const data = JSON.parse(reader.result);
+	 if(type !== data.type){
+      alert('このファイルはインポートできません');
+	  return false;
+	 }
+     if(!window.confirm('インポートを実行します、現在の設定は削除されますがよろしいですか？')) return false;
+	 let data_arr = [];
+     switch(type){
+	  case 'tag':
+	   await $.each(data.data, (idx,val)=>{
+        data_arr.push({'tid':'', 'tag':val.tag, 'tag_name':val.tag_name});
+       });
+       await $.ajax({url:'/setup/tag/all', type:'DELETE', dataType:'json'})
+       .done(function(res){
+        if(res.status == false){
+         alert('インポートできませんでした');
+         return false;
+        }
+       })
+       .fail(function(xhr, error){
+        console.log(xhr,error);
+        fn_jump_login();
+       });
+       await $.post('/setup/tag', {'data':JSON.stringify(data_arr)},{},'json')
+       .done(function(res){
+        alert('インポート完了');
+        location.reload();
+       })
+       .fail(function(xhr, error){
+        console.log(xhr,error);
+        fn_jump_login();
+       });
+	   break;
+	  case 'match':
+	   await $.each(data.data, (idx,val)=>{
+        data_arr.push({'mid':'', 'key_str':val.key_str, 'color':val.color, 'push':false});
+       });
+       await $.ajax({url:'/setup/match/all', type:'DELETE', dataType:'json'})
+       .done(function(res){
+        if(res.status == false){
+         alert('インポートできませんでした');
+         return false;
+        }
+       })
+       .fail(function(xhr, error){
+        console.log(xhr,error);
+        fn_jump_login();
+       });
+       await $.post('/setup/match', {'data':JSON.stringify(data_arr)},{},'json')
+       .done(function(res){
+        alert('インポート完了');
+        location.reload();
+       })
+       .fail(function(xhr, error){
+        console.log(xhr,error);
+        fn_jump_login();
+       });
+	   break;
+	 }
+	}
+	reader.onerr = function(){
+	 console.log(reader.error);
+     alert('ファイル読込エラー');
+	 return false;
+	}
+   }
+  });
+
+  $('#id_change_btn').on('click', function(){
+   let id = $('#new_id').val();
+   if(!id) return false;
+   $.get('/setup/id/'+id, {}, {}, 'json')
+   .done(function(data){
+	if(!data.status){
+     alert('IDが重複しています');
+	 return false;
+	}
+	if(!window.confirm('IDを変更します、よろしいですか？')) return false;
+    let send_data = {'id': id};
+    $.ajax({url:'/setup/id', type:'PUT', data:send_data, dataType:'json'})
+    .done(function(data){
+     let msg = '変更しました';
+     if(data.status == false) msg = '変更出来ませんでした';
+     alert(msg);
+     location.reload();
+    })
+    .fail(function(xhr, error){
+     console.log(xhr,error);
+     fn_jump_login();
+    });
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('#passwd_change_btn').on('click', function(){
+   let passwd = $('#new_passwd').val();
+   if(!passwd) return false;
+   $.post('/setup/passwd', {'passwd': passwd}, {}, 'json')
+   .done(function(data){
+    let msg = '変更しました';
+    if(data.status == false) msg = '変更出来ませんでした';
+    alert(msg);
+    location.reload();
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+  $('#log_delete_btn').on('click', function(){
+   if(!window.confirm('ログを消去します、よろしいですか？')) return false;
+   $.ajax({url:'/setup/log', type:'DELETE', dataType:'json'})
+   .done(function(data){
+    let msg = '消去しました';
+    if(data.status == false) msg = '消去出来ませんでした';
+    alert(msg);
+   })
+   .fail(function(xhr, error){
+    console.log(xhr,error);
+    fn_jump_login();
+   });
+  });
+
+});
+function SetDisp(active_tab){
+ $('#menu_box li').removeClass('active');
+ $('#menu_box li[data-tab="'+active_tab+'"]').addClass('active');
+ $('div.tab_view').removeClass('active');
+ $(active_tab).addClass('active');
+}
+</script>
+</html>

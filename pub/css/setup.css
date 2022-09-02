@@ -1,0 +1,147 @@
+html{
+ min-width: 500px;
+}
+
+body{
+ margin: 8px 30px 0;
+}
+
+#head_box{
+ margin-bottom: 20px;
+}
+
+#return_index{
+ height: 50px;
+}
+#return_index a{
+ padding: 10px;
+ text-decoration: none;
+ color: black;
+}
+#return_index a:hover{
+ border-radius: 20%;
+ background-color: rgba(0,0,0,0.05);
+}
+
+#menu_box{
+ height: 30px;
+}
+#menu_box li{
+ display: table-cell;
+ padding: 0 10px;
+ border-bottom: solid 1px #ddd;
+ cursor: pointer;
+}
+#menu_box li.active{
+ color: #6be;
+ border-bottom: solid 2px #6be;
+}
+
+div.tab_view{
+ display: none;
+}
+div.tab_view.active{
+ display: block;
+}
+
+div.tab_menu_box{
+ display: none;
+}
+
+#General span.token_body{
+ display: block;
+ /*width: 70em;*/
+ padding-bottom: 15px;
+ font-size: small;
+ word-break: break-all;
+}
+/*
+#General ul{
+ display: flex;
+ padding: 10px 2px;
+ border-top: solid 1px #ddd;
+}
+#General ul:last-child{
+ border-bottom: solid 1px #ddd;
+}
+li.col_head{
+ width: 200px;
+}
+li.col_body{
+ width: 300px;
+}
+*/
+#tag_table_field, #match_table_field{
+ margin-top: 20px;
+}
+ul li.drag_tab{
+ width: 30px;
+}
+ul.ui-sortable-handle li.drag_tab{
+ background: url(/img/drag_indicator.png) no-repeat center;
+ cursor: move;
+}
+ul.ui-sortable-handle:hover li{
+ background-color: #aef;
+}
+ul li.match_key{
+/* width: calc(70% - 200px); */
+ width: calc(100% - 330px);
+}
+ul li.match_color{
+ width: 150px;
+}
+ul li.match_push{
+ width: 50px;
+ text-align: center;
+}
+
+ul,li {
+   margin: 0;
+   padding: 0;
+   list-style-type: none;}
+.list_flex {
+   width: 100%;
+   line-height: 2.2;}
+.list_flex ul {
+  display: flex;
+/*  flex-wrap: wrap;*/}
+.list_flex ul:first-child li {
+   font-weight: bold;
+   text-align: center;
+   padding: 0;}
+.list_flex li {
+   box-sizing: border-box;
+/*   width: 35%;*/
+   width: calc((100% - 130px)/2);
+   padding: 1px;
+   border-top: 1px solid #000;
+   border-right: 1px solid #000;}
+.list_flex li:first-child {
+   border-left: 1px solid #000;}
+.list_flex ul:last-child li {
+   border-bottom: 1px solid #000;}
+.list_flex_3col li {
+   width: 33%;}
+li.tag_action, li.match_action {
+   width: 100px;
+   text-align: center;}
+li.tag_action button, li.match_action button, .tag_save_btn, .match_save_btn {
+   padding: 0 20px;}
+li.tag_action button:not(:last-child), li.match_action button:not(:last-child) {
+   margin-right: 2px;}
+/*
+.tag_change_btn {
+   width: 80px;}
+.tag_delete_btn {
+   width: 80px;
+   margin-left: 6px;}
+*/
+li input[type="text"] {
+   box-sizing: border-box;
+   width: 100%;
+   height: 100%;}
+
+input.file_import{
+ display: none;
+}

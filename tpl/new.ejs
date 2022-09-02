@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>アカウント登録</title>
+ <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<style>
+*{
+ margin: 0;
+}
+html{
+ background-color: #fdfdfd;
+}
+div#entry_box{
+ width: 300px;
+ margin: 60px auto;
+}
+div#entry_box form{
+ padding: 10px 40px 60px;
+ border: solid 1px #eee;
+ box-shadow: 5px 5px 10px #eee;
+ background-color: #fff;
+}
+div#entry_box input{
+ width: 97%;
+ border: solid 1px #ddd;
+ background-color: #fdfdfd;
+ margin-bottom: 1em;
+ line-height: 2;
+}
+div#entry_box button{
+ float: right;
+}
+</style>
+</head>
+
+<body>
+ <div id="entry_box">
+ <h3>アカウント登録</h3>
+<form>
+ ID:<input type="text" id="id"><br>
+ パスワード:<input type="password" id="passwd"><br>
+ パスワード再入力:<input type="password" id="passwd2"><br>
+ <button type="button" id="user_add_btn">アカウント作成</button>
+</form>
+ </div>
+</body>
+<script>
+ $('#user_add_btn').on('click', function(){
+  let id = $('#id').val();
+  let passwd = $('#passwd').val();
+  let passwd2 = $('#passwd2').val();
+  if(!id || !passwd || !passwd2) return false;
+  if(passwd != passwd2){
+   alert('パスワードが一致しません');
+   return false;
+  }
+  $.post($(location).attr('href'), {'id': id, 'passwd': passwd}, {}, 'json')
+  .done(function(data){
+   if(data.status == false){
+    alert('このIDは登録できません');
+   }else{
+    alert('登録しました');
+    location.href = '/';
+   }
+  })
+  .fail(function(xhr, error){
+   console.log(xhr,error);
+   alert('登録エラー');
+  });
+ });
+</script>
+</html>
